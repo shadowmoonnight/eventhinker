@@ -1,0 +1,11 @@
+# Security Policy & Protections
+
+EventCraft implements defense-in-depth principles across client and server boundaries to ensure reliable event planning and secure AI integration.
+
+- **Threat Model**: EventCraft assumes all incoming HTTP request bodies and client-side parameters are potentially malicious, untrusted, or malformed. External LLM services are treated as untrusted third-party systems that can fail, timeout, or return unexpected tokens.
+- **API Key & SDK Isolation**: The `@google/genai` SDK is imported exclusively in one server file (`server/ai/geminiClient.ts`). No API keys, credentials, or AI SDK code ever touch the client bundle or browser environment.
+- **Dual-Boundary Validation & Sanitization**: All user inputs (dates, budgets, guest counts, notes, categories) undergo sanitization (control-character removal, length bounding) and strict type validation on both the client and server before processing.
+- **Token-Bucket Rate Limiting**: All AI endpoints (`/api/ideas-stream`, `/api/assistant-stream`, `/api/summary-stream`, `/api/vendor-guidance`) are protected by a bounded token-bucket rate limiter per IP address (15-token capacity, 1 token/minute refill) with automatic eviction of stale entries to prevent resource exhaustion and denial-of-service.
+- **Strict Content Security Policy (CSP)**: In production, HTTP responses enforce a strict Content Security Policy restricting script execution to `'self'`, blocking remote CDNs, disabling `unsafe-eval`, and locking down iframe framing via `frame-ancestors`. Headers also include `X-Content-Type-Options: nosniff` and `Referrer-Policy: strict-origin-when-cross-origin`.
+- **Prompt-Injection Sanitization**: All user inputs passed to the Gemini model are encapsulated within explicit XML delimiters (`<user_input>...</user_input>`). System instructions explicitly instruct the model that content inside these tags represents untrusted data, never operational instructions or persona shifts.
+- **Safe Output Rendering**: Model responses are streamed and rendered strictly as plain text nodes. The application explicitly forbids `dangerouslySetInnerHTML` and raw HTML interpolation, preventing stored or reflected Cross-Site Scripting (XSS).
