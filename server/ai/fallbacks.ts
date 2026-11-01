@@ -58,7 +58,7 @@ export function getFallbackAssistantResponse(message: string, plan: EventPlan): 
     );
   }
   return (
-    `EventCraft Planning Advice for ${plan.intake.name}:\n` +
+    `eventhinker Planning Advice for ${plan.intake.name}:\n` +
     `Your event is set for ${plan.intake.date} with ${plan.intake.guestCount} guests. ` +
     `Focus on securing your primary venue and catering contracts first, as those dictate your schedule and major spend.`
   );

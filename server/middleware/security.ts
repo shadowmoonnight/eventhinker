@@ -8,7 +8,7 @@ export const CSP_HEADER_VALUE =
  * In dev, CSP is omitted to allow Vite dev server workflows.
  */
 export function securityHeaders(
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction,
 ): void {

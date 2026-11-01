@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { usePlanDispatch, usePlanState } from "../../state/PlanContext.tsx";
+import { CARD_EMPTY_CLASS, SECTION_HEADING_2XL, SECTION_HEADING_XL } from "../ui/styles.ts";
 import { BudgetSummaryCards } from "./BudgetSummaryCards.tsx";
 import { BudgetTable } from "./BudgetTable.tsx";
 
@@ -15,6 +16,17 @@ function BudgetWarning({ overCount }: { overCount: number }): React.JSX.Element 
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function BudgetEmptyState(): React.JSX.Element {
+  return (
+    <div className={CARD_EMPTY_CLASS}>
+      <h2 id="section-heading-budget" tabIndex={-1} className={SECTION_HEADING_XL}>
+        No Plan Active
+      </h2>
+      <p className="mt-2 text-sm text-slate-700">Please complete the Intake Wizard first to generate your budget.</p>
     </div>
   );
 }
@@ -41,20 +53,13 @@ export function BudgetPlanner(): React.JSX.Element {
   }, [budget]);
 
   if (!plan || !budget) {
-    return (
-      <div className="rounded-xl border border-slate-300 bg-white p-8 text-center">
-        <h2 id="section-heading-budget" tabIndex={-1} className="text-xl font-bold text-slate-900 outline-none">
-          No Plan Active
-        </h2>
-        <p className="mt-2 text-sm text-slate-700">Please complete the Intake Wizard first to generate your budget.</p>
-      </div>
-    );
+    return <BudgetEmptyState />;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 id="section-heading-budget" tabIndex={-1} className="text-2xl font-bold tracking-tight text-slate-900 outline-none">
+        <h2 id="section-heading-budget" tabIndex={-1} className={SECTION_HEADING_2XL}>
           Budget Planner & Tracking
         </h2>
         <p className="text-sm text-slate-700">

@@ -1,4 +1,5 @@
 import React, { lazy, Suspense } from "react";
+import { ErrorBoundary } from "./components/layout/ErrorBoundary.tsx";
 import { Header } from "./components/layout/Header.tsx";
 import { LiveRegion } from "./components/layout/LiveRegion.tsx";
 import { Navigation } from "./components/layout/Navigation.tsx";
@@ -42,24 +43,26 @@ function MainContent(): React.JSX.Element {
  */
 export default function App(): React.JSX.Element {
   return (
-    <PlanProvider>
-      <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        <LiveRegion />
-        <Header />
-        <Navigation />
-        <MainContent />
-        <footer className="border-t border-slate-300 bg-white py-6 text-center text-xs text-slate-600 no-print">
-          <div className="mx-auto max-w-7xl px-4">
-            <p className="font-medium text-slate-800">EventCraft — Celebration & Event Planner</p>
-            <p className="mt-1">
-              Deterministic Plan Engine with GenAI enrichment. All cost figures are guidelines and estimates, not formal quotes.
-            </p>
-          </div>
-        </footer>
-      </div>
-    </PlanProvider>
+    <ErrorBoundary>
+      <PlanProvider>
+        <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+          <a href="#main-content" className="skip-link">
+            Skip to main content
+          </a>
+          <LiveRegion />
+          <Header />
+          <Navigation />
+          <MainContent />
+          <footer className="border-t border-slate-300 bg-white py-6 text-center text-xs text-slate-600 no-print">
+            <div className="mx-auto max-w-7xl px-4">
+              <p className="font-medium text-emerald-400">eventhinker — Celebration & Event Planner</p>
+              <p className="mt-1">
+                Deterministic Plan Engine with GenAI enrichment. All cost figures are guidelines and estimates, not formal quotes.
+              </p>
+            </div>
+          </footer>
+        </div>
+      </PlanProvider>
+    </ErrorBoundary>
   );
 }

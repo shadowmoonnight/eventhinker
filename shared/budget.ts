@@ -7,7 +7,7 @@ import {
   BUDGET_STATUS_THRESHOLDS,
   PRIORITY_MULTIPLIER,
 } from "./constants.ts";
-import { getBudgetTemplate } from "./data/budgetTemplates.ts";
+import { getBudgetTemplate, type BudgetTemplateCategory } from "./data/budgetTemplates.ts";
 import type {
   BudgetCategoryItem,
   BudgetPlan,
@@ -117,13 +117,11 @@ function distributeLargestRemainder(totalMinor: number, shares: number[]): numbe
  * @param priorities - Priority category names or ids.
  * @returns Array of BudgetCategoryItem objects.
  */
-export function allocateBudget(
-  totalMinor: number,
-  type: EventType,
+function buildWeightedCategories(
+  template: readonly BudgetTemplateCategory[],
   priorities: readonly string[],
-): BudgetCategoryItem[] {
-  const template = getBudgetTemplate(type);
-  const weighted: WeightedCategory[] = template.map((cat, index) => {
+): WeightedCategory[] {
+  return template.map((cat, index) => {
     const isPriority = priorities.some(
       (p) => p.toLowerCase() === cat.id.toLowerCase() || p.toLowerCase() === cat.name.toLowerCase(),
     );
@@ -138,7 +136,22 @@ export function allocateBudget(
       index,
     };
   });
+}
 
+/**
+ * Allocates budget with priority boosts, contingency protection, and exact minor sums.
+ * @param totalMinor - Total budget in minor units (cents).
+ * @param type - Event type.
+ * @param priorities - Priority category names or ids.
+ * @returns Array of BudgetCategoryItem objects.
+ */
+export function allocateBudget(
+  totalMinor: number,
+  type: EventType,
+  priorities: readonly string[],
+): BudgetCategoryItem[] {
+  const template = getBudgetTemplate(type);
+  const weighted = buildWeightedCategories(template, priorities);
   const shares = computeNormalizedShares(weighted);
   const allocations = distributeLargestRemainder(Math.max(0, totalMinor), shares);
 

@@ -37,7 +37,7 @@ export function ChatMessageList({
       {messages.length === 0 && !streamingText ? (
         <div className="flex h-full flex-col items-center justify-center text-center text-slate-600">
           <span aria-hidden="true" className="text-3xl">💬</span>
-          <p className="mt-2 text-sm font-semibold text-slate-900">Your EventCraft Planning Advisor</p>
+          <p className="mt-2 text-sm font-semibold text-slate-900">Your eventhinker Planning Advisor</p>
           <p className="text-xs">Ask anything about your schedule, guest needs, or vendor negotiations.</p>
         </div>
       ) : null}

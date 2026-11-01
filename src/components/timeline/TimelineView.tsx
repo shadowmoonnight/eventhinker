@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import type { TimelineTask } from "../../../shared/types.ts";
 import { usePlanDispatch, usePlanState } from "../../state/PlanContext.tsx";
+import { CARD_EMPTY_CLASS, SECTION_HEADING_2XL, SECTION_HEADING_XL } from "../ui/styles.ts";
 import { TaskRow } from "./TaskRow.tsx";
 import { TimelineSummaryCards } from "./TimelineSummaryCards.tsx";
 
@@ -73,6 +74,33 @@ function filterMilestones(tasks: readonly TimelineTask[], filter: FilterMode): r
   return tasks;
 }
 
+function TimelineEmptyState(): React.JSX.Element {
+  return (
+    <div className={CARD_EMPTY_CLASS}>
+      <h2 id="section-heading-timeline" tabIndex={-1} className={SECTION_HEADING_XL}>
+        No Timeline Active
+      </h2>
+      <p className="mt-2 text-sm text-slate-700">Please complete the Intake Wizard to schedule your event timeline.</p>
+    </div>
+  );
+}
+
+function TimelineMilestonesList({
+  tasks,
+  onToggle,
+}: {
+  tasks: readonly TimelineTask[];
+  onToggle: (taskId: string) => void;
+}): React.JSX.Element {
+  return (
+    <div className="space-y-3">
+      {tasks.map((task) => (
+        <TaskRow key={task.id} task={task} onToggle={onToggle} />
+      ))}
+    </div>
+  );
+}
+
 /**
  * Timeline view presenting backward milestones, filter controls, and overdue alerts.
  */
@@ -96,20 +124,13 @@ export function TimelineView(): React.JSX.Element {
   }, [timeline]);
 
   if (!plan || !timeline) {
-    return (
-      <div className="rounded-xl border border-slate-300 bg-white p-8 text-center">
-        <h2 id="section-heading-timeline" tabIndex={-1} className="text-xl font-bold text-slate-900 outline-none">
-          No Timeline Active
-        </h2>
-        <p className="mt-2 text-sm text-slate-700">Please complete the Intake Wizard to schedule your event timeline.</p>
-      </div>
-    );
+    return <TimelineEmptyState />;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 id="section-heading-timeline" tabIndex={-1} className="text-2xl font-bold tracking-tight text-slate-900 outline-none">
+        <h2 id="section-heading-timeline" tabIndex={-1} className={SECTION_HEADING_2XL}>
           Milestone Timeline
         </h2>
         <p className="text-sm text-slate-700">Backward-scheduled milestones targeted toward your event on {plan.intake.date}.</p>
@@ -131,11 +152,7 @@ export function TimelineView(): React.JSX.Element {
         totalCount={timeline.tasks.length}
       />
 
-      <div className="space-y-3">
-        {filteredTasks.map((task) => (
-          <TaskRow key={task.id} task={task} onToggle={handleToggle} />
-        ))}
-      </div>
+      <TimelineMilestonesList tasks={filteredTasks} onToggle={handleToggle} />
     </div>
   );
 }

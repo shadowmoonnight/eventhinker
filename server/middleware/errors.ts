@@ -24,11 +24,10 @@ export function sendError(
  * Global fallback error handler for unexpected server errors.
  */
 export function globalErrorHandler(
-  err: unknown,
-  req: Request,
+  _err: unknown,
+  _req: Request,
   res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction,
+  _next: NextFunction,
 ): void {
   if (res.headersSent) return;
   sendError(

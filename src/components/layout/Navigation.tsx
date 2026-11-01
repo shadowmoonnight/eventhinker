@@ -29,6 +29,37 @@ function getBadgeClass(isActive: boolean): string {
   return "bg-slate-200 text-slate-700";
 }
 
+function NavButton({
+  item,
+  isActive,
+  isBlocked,
+  onClick,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  isBlocked: boolean;
+  onClick: (id: PlanState["activeSection"]) => void;
+}): React.JSX.Element {
+  return (
+    <li>
+      <button
+        type="button"
+        disabled={isBlocked}
+        aria-current={isActive ? "page" : undefined}
+        onClick={() => onClick(item.id)}
+        className={`inline-flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 ${getNavButtonClass(isActive, isBlocked)}`}
+      >
+        <span>{item.label}</span>
+        {item.badge ? (
+          <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getBadgeClass(isActive)}`}>
+            {item.badge}
+          </span>
+        ) : null}
+      </button>
+    </li>
+  );
+}
+
 /**
  * Section navigation adhering strictly to WCAG 2.1 AA nav landmark rules.
  */
@@ -38,7 +69,7 @@ export function Navigation(): React.JSX.Element {
 
   useEffect(() => {
     const sectionTitle = activeSection.charAt(0).toUpperCase() + activeSection.slice(1);
-    document.title = `EventCraft — ${sectionTitle}`;
+    document.title = `eventhinker — ${sectionTitle}`;
   }, [activeSection]);
 
   const handleNavClick = (sectionId: PlanState["activeSection"]): void => {
@@ -53,29 +84,15 @@ export function Navigation(): React.JSX.Element {
     <nav aria-label="Plan sections" className="border-b border-slate-300 bg-white">
       <div className="mx-auto flex max-w-7xl overflow-x-auto px-4 py-2 sm:px-6">
         <ul className="flex flex-wrap items-center gap-1.5">
-          {NAV_ITEMS.map((item) => {
-            const isActive = activeSection === item.id;
-            const isBlocked = !plan && item.id !== "wizard";
-
-            return (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  disabled={isBlocked}
-                  aria-current={isActive ? "page" : undefined}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`inline-flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 ${getNavButtonClass(isActive, isBlocked)}`}
-                >
-                  <span>{item.label}</span>
-                  {item.badge ? (
-                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getBadgeClass(isActive)}`}>
-                      {item.badge}
-                    </span>
-                  ) : null}
-                </button>
-              </li>
-            );
-          })}
+          {NAV_ITEMS.map((item) => (
+            <NavButton
+              key={item.id}
+              item={item}
+              isActive={activeSection === item.id}
+              isBlocked={!plan && item.id !== "wizard"}
+              onClick={handleNavClick}
+            />
+          ))}
         </ul>
       </div>
     </nav>

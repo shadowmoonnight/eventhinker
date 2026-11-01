@@ -12,6 +12,7 @@ import { getInitialVendors } from "./data/vendorItems.ts";
 import { buildTimeline, isTaskOverdue } from "./timeline.ts";
 import type {
   BudgetCategoryItem,
+  BudgetPlan,
   EventPlan,
   IntakeData,
   PlanWarning,
@@ -154,6 +155,15 @@ function mergeTimelineTasks(
   });
 }
 
+function recomputeMergedBudget(
+  intake: IntakeData,
+  existingCategories: readonly BudgetCategoryItem[],
+): BudgetPlan {
+  const fresh = allocateBudget(intake.totalBudgetMinor, intake.eventType, intake.priorities);
+  const merged = mergeBudgetCategories(fresh, existingCategories);
+  return computeBudgetSummary(merged, intake.currency, intake.guestCount);
+}
+
 /**
  * Re-plans an existing event plan with updated intake parameters while preserving user progress.
  * @param plan - Current EventPlan.
@@ -176,10 +186,7 @@ export function replan(
 
   const mergedTasks = mergeTimelineTasks(timelineRes.value.tasks, plan.timeline.tasks, today);
   const overdueCount = mergedTasks.filter((t) => t.isOverdue).length;
-
-  const freshCategories = allocateBudget(nextIntake.totalBudgetMinor, nextIntake.eventType, nextIntake.priorities);
-  const mergedCategories = mergeBudgetCategories(freshCategories, plan.budget.categories);
-  const budget = computeBudgetSummary(mergedCategories, nextIntake.currency, nextIntake.guestCount);
+  const budget = recomputeMergedBudget(nextIntake, plan.budget.categories);
 
   const vendors: VendorItem[] =
     nextIntake.eventType === plan.intake.eventType

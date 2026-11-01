@@ -74,24 +74,18 @@ function computeTaskDays(daysBefore: number, leadDays: number, maxOffset: number
  * @param type - Event type.
  * @returns ValidationResult with complete TimelinePlan.
  */
-export function buildTimeline(
-  eventDate: string,
-  today: string,
-  type: EventType,
-): ValidationResult<TimelinePlan> {
-  const eventMs = parseUtcMidnight(eventDate);
-  const todayMs = parseUtcMidnight(today);
-  const leadDays = Math.floor((eventMs - todayMs) / 86_400_000);
+interface TaskGenerationParams {
+  template: readonly TemplateTaskItem[];
+  isCompressed: boolean;
+  leadDays: number;
+  maxOffset: number;
+  eventMs: number;
+  today: string;
+}
 
-  if (leadDays < 0) {
-    return { ok: false, error: "Event date cannot be in the past" };
-  }
-
-  const template = getTimelineTemplate(type);
-  const maxOffset = Math.max(...template.map((t) => t.daysBefore), 1);
-  const isCompressed = leadDays < maxOffset;
-
-  const tasks: TimelineTask[] = template.map((item) => {
+function buildTimelineTasks(params: TaskGenerationParams): TimelineTask[] {
+  const { template, isCompressed, leadDays, maxOffset, eventMs, today } = params;
+  return template.map((item) => {
     const daysBefore = isCompressed
       ? computeTaskDays(item.daysBefore, leadDays, maxOffset)
       : item.daysBefore;
@@ -110,6 +104,40 @@ export function buildTimeline(
       completed,
       isOverdue: isTaskOverdue({ completed, dueDate }, today),
     };
+  });
+}
+
+/**
+ * Builds backward timeline milestones for an event from target date.
+ * @param eventDate - Target celebration date YYYY-MM-DD.
+ * @param today - Current reference date YYYY-MM-DD.
+ * @param type - Event type.
+ * @returns ValidationResult with complete TimelinePlan.
+ */
+export function buildTimeline(
+  eventDate: string,
+  today: string,
+  type: EventType,
+): ValidationResult<TimelinePlan> {
+  const eventMs = parseUtcMidnight(eventDate);
+  const todayMs = parseUtcMidnight(today);
+  const leadDays = Math.floor((eventMs - todayMs) / 86_400_000);
+
+  if (leadDays < 0) {
+    return { ok: false, error: "Event date cannot be in the past" };
+  }
+
+  const template = getTimelineTemplate(type);
+  const maxOffset = Math.max(...template.map((t) => t.daysBefore), 1);
+  const isCompressed = leadDays < maxOffset;
+
+  const tasks = buildTimelineTasks({
+    template,
+    isCompressed,
+    leadDays,
+    maxOffset,
+    eventMs,
+    today,
   });
 
   const overdueCount = tasks.filter((t) => t.isOverdue).length;

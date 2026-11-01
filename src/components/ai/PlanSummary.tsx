@@ -3,6 +3,7 @@ import { useAiStream } from "../../hooks/useAiStream.ts";
 import { usePlanState } from "../../state/PlanContext.tsx";
 import { SourceBadge } from "./SourceBadge.tsx";
 import { SummaryDisplay } from "./SummaryDisplay.tsx";
+import { CARD_EMPTY_CLASS, SECTION_HEADING_XL } from "../ui/styles.ts";
 
 interface SummaryHeaderProps {
   hasText: boolean;
@@ -78,8 +79,8 @@ export default function PlanSummary(): React.JSX.Element {
 
   if (!plan) {
     return (
-      <div className="rounded-xl border border-slate-300 bg-white p-8 text-center">
-        <h2 id="section-heading-summary" tabIndex={-1} className="text-xl font-bold text-slate-900 outline-none">
+      <div className={CARD_EMPTY_CLASS}>
+        <h2 id="section-heading-summary" tabIndex={-1} className={SECTION_HEADING_XL}>
           No Plan Available to Summarize
         </h2>
         <p className="mt-2 text-sm text-slate-700">Please complete the Intake Wizard to generate an executive plan summary.</p>

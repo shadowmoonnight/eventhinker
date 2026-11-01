@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import type { VendorItem } from "../../../shared/types.ts";
 import { summarizeVendors, type VendorItemPatch } from "../../../shared/vendors.ts";
 import { usePlanDispatch, usePlanState } from "../../state/PlanContext.tsx";
+import { CARD_EMPTY_CLASS, SECTION_HEADING_2XL, SECTION_HEADING_XL } from "../ui/styles.ts";
 import { VendorRow } from "./VendorRow.tsx";
 import { VendorSummaryCards } from "./VendorSummaryCards.tsx";
 
@@ -30,11 +31,40 @@ async function fetchCategoryGuidance(
 
 function VendorEmptyState(): React.JSX.Element {
   return (
-    <div className="rounded-xl border border-slate-300 bg-white p-8 text-center">
-      <h2 id="section-heading-vendors" tabIndex={-1} className="text-xl font-bold text-slate-900 outline-none">
+    <div className={CARD_EMPTY_CLASS}>
+      <h2 id="section-heading-vendors" tabIndex={-1} className={SECTION_HEADING_XL}>
         No Vendor Checklist Active
       </h2>
       <p className="mt-2 text-sm text-slate-700">Please complete the Intake Wizard to initialize your vendor roster.</p>
+    </div>
+  );
+}
+
+function VendorRosterList({
+  vendors,
+  currency,
+  loadingCategory,
+  onUpdate,
+  onLoadGuidance,
+}: {
+  vendors: readonly VendorItem[];
+  currency: string;
+  loadingCategory: string | null;
+  onUpdate: (vendorId: string, patch: VendorItemPatch) => void;
+  onLoadGuidance: (category: string) => Promise<void>;
+}): React.JSX.Element {
+  return (
+    <div className="space-y-4">
+      {vendors.map((vendor) => (
+        <VendorRow
+          key={vendor.id}
+          vendor={vendor}
+          currency={currency}
+          onUpdate={onUpdate}
+          onLoadGuidance={onLoadGuidance}
+          guidanceLoading={loadingCategory === vendor.category}
+        />
+      ))}
     </div>
   );
 }
@@ -76,7 +106,7 @@ export function VendorChecklist(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h2 id="section-heading-vendors" tabIndex={-1} className="text-2xl font-bold tracking-tight text-slate-900 outline-none">
+        <h2 id="section-heading-vendors" tabIndex={-1} className={SECTION_HEADING_2XL}>
           Vendor Checklist & Vetting
         </h2>
         <p className="text-sm text-slate-700">
@@ -92,18 +122,13 @@ export function VendorChecklist(): React.JSX.Element {
         currency={currency}
       />
 
-      <div className="space-y-4">
-        {vendors.map((vendor) => (
-          <VendorRow
-            key={vendor.id}
-            vendor={vendor}
-            currency={currency}
-            onUpdate={handleUpdate}
-            onLoadGuidance={handleLoadGuidance}
-            guidanceLoading={loadingCategory === vendor.category}
-          />
-        ))}
-      </div>
+      <VendorRosterList
+        vendors={vendors}
+        currency={currency}
+        loadingCategory={loadingCategory}
+        onUpdate={handleUpdate}
+        onLoadGuidance={handleLoadGuidance}
+      />
     </div>
   );
 }
